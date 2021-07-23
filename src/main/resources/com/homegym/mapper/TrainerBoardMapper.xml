@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="TrainerBoardDAO">
+	<!-- 글 등록 -->
+	<insert id="getTbWrite">
+	<![CDATA[
+		INSERT INTO TRAINER_BOARD
+		( 
+			MEMBERID,
+			NAME,
+			IMAGE,
+			TBTITLE,  
+			TBCONTENT, 
+			TBPROGRAM, 
+			DAYTIMES,
+			DAYTIMEF, 
+			SUNTIMES,
+			SUNTIMEF, 
+			TBREGDATE,  
+			TBIMG, 
+			TBPHOTO1,
+			TBPHOTO2,
+			TBPHOTO3, 
+			TBACTIVTAG1,
+			TBACTIVTAG2,
+			TBACTIVTAG3,
+			TBACTIVCHK1,
+			TBACTIVCHK2,
+			TBACTIVCHK3
+			
+		)
+		VALUES
+		( 
+			#{memberId},
+			#{name},
+			(
+				SELECT IMAGE
+			 	   FROM MEMBER
+			 	WHERE memberId = #{memberId}
+			),
+			#{tbTitle}, 
+			#{tbContent}, 
+			#{tbProgram},
+			#{dayTimes},
+			#{dayTimef}, 
+			#{sunTimes},
+			#{sunTimef},
+			now(),
+			#{tbImg}, 
+			#{tbPhoto1},
+			#{tbPhoto2},
+			#{tbPhoto3}, 
+			#{tbActivTag1},
+			#{tbActivTag2},
+			#{tbActivTag3}, 
+			#{tbActivChk1},
+			#{tbActivChk2},
+			#{tbActivChk3}
+		)
+		]]>
+	</insert>
+
+	<!-- 글 수정 -->
+	<update id="getTbUpdate">
+	<![CDATA[
+		UPDATE TRAINER_BOARD SET 
+				TBTITLE = #{tbTitle},  
+				TBCONTENT = #{tbContent}, 
+				TBPROGRAM = #{tbProgram},
+				DAYTIMES = #{dayTimes},
+				DAYTIMEF =  #{dayTimef},  
+				SUNTIMES = #{sunTimes},
+				SUNTIMEF = #{sunTimef},
+				TBREGDATE = now(),  
+				TBIMG = #{tbImg}, 
+				TBPHOTO1 = #{tbPhoto1},
+				TBPHOTO2 = #{tbPhoto2},
+				TBPHOTO3 = #{tbPhoto3}, 
+				TBACTIVTAG1 = #{tbActivTag1},
+				TBACTIVTAG2 = #{tbActivTag2},
+				TBACTIVTAG3 = #{tbActivTag3},
+				TBACTIVCHK1 = #{tbActivChk1},
+				TBACTIVCHK2 = #{tbActivChk2},
+				TBACTIVCHK3 = #{tbActivChk3}
+		WHERE
+				tno = #{tno}
+		]]>
+	</update>
+
+	<!-- 글 삭제 -->
+	<delete id="deleteBoard">
+	<![CDATA[
+		DELETE FROM TRAINER_BOARD 
+		WHERE 
+				TNO = #{tno}
+		]]>
+	</delete>
+
+	<!-- 글 목록 -->
+	<select id="getTbList" resultType="trainer">
+	<![CDATA[
+		SELECT * FROM TRAINER_BOARD ORDER BY TNO DESC
+		]]>
+	</select>
+
+	<!--글 상세보기 -->
+	<select id="getTbDetail" resultType="trainer">
+	<![CDATA[
+		SELECT * FROM TRAINER_BOARD WHERE TNO = #{tno} 
+		
+		]]>
+	</select>
+
+	<!-- 게시판 목록/ 페이징 처리 -->
+	<select id="getTbListPaging" resultType="trainer">
+		<![CDATA[
+			SELECT * FROM trainer_board	R1
+			WHERE 1=1
+		]]>
+		<if test="vo.searchKeyword != null and vo.searchKeyword != ''">
+			AND tbActivTag1 like concat('%', #{vo.searchKeyword}, '%')
+			OR tbActivTag2 like concat('%', #{vo.searchKeyword}, '%')
+			OR
+			tbActivTag3 like concat('%', #{vo.searchKeyword}, '%')
+		</if>
+		ORDER BY TNO DESC
+		LIMIT #{cri.amount} OFFSET #{cri.skip}
+	</select>
+
+	<select id="getTotalCount" parameterType="hashmap"
+		resultType="int">
+		SELECT COUNT(*) FROM trainer_board
+		WHERE 1=1
+		<if test="searchKeyword != null and searchKeyword != ''">
+			AND tbActivTag1 like concat('%', #{searchKeyword}, '%')
+			OR
+			tbActivTag2 like concat('%', #{searchKeyword}, '%')
+			OR tbActivTag3
+			like concat('%', #{searchKeyword}, '%')
+		</if>
+	</select>
+
+</mapper>
